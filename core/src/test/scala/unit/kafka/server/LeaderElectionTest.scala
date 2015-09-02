@@ -79,6 +79,10 @@ class LeaderElectionTest extends ZooKeeperTestHarness {
     val leader2 = waitUntilLeaderIsElectedOrChanged(zkClient, topic, partitionId,
                                                     oldLeaderOpt = if(leader1.get == 0) None else leader1)
     val leaderEpoch2 = ZkUtils.getEpochForPartition(zkClient, topic, partitionId)
+
+    // A LeaderAndIsrRequest with a smaller isr should cause the isrShrinkRate meter to be counted
+    assertEquals("Isr must have shrunk on the replica", 1, servers.head.replicaManager.isrShrinkRate.count())
+
     debug("Leader is elected to be: %s".format(leader1.getOrElse(-1)))
     debug("leader Epoc: " + leaderEpoch2)
     assertEquals("Leader must move to broker 0", 0, leader2.getOrElse(-1))
@@ -133,7 +137,7 @@ class LeaderElectionTest extends ZooKeeperTestHarness {
     val staleControllerEpoch = 0
     val leaderAndIsr = new collection.mutable.HashMap[(String, Int), LeaderIsrAndControllerEpoch]
     leaderAndIsr.put((topic, partitionId),
-      new LeaderIsrAndControllerEpoch(new LeaderAndIsr(brokerId2, List(brokerId1, brokerId2)), 2))
+                     new LeaderIsrAndControllerEpoch(new LeaderAndIsr(brokerId2, List(brokerId1, brokerId2)), 2))
     val partitionStateInfo = leaderAndIsr.mapValues(l => new PartitionStateInfo(l, Set(0,1))).toMap
     val leaderAndIsrRequest = new LeaderAndIsrRequest(partitionStateInfo, brokerEndPoints.toSet, controllerId,
                                                       staleControllerEpoch, 0, "")
