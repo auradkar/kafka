@@ -27,9 +27,7 @@ public class MockMetricsReporter implements MetricsReporter {
     public static final AtomicInteger INIT_COUNT = new AtomicInteger(0);
     public static final AtomicInteger CLOSE_COUNT = new AtomicInteger(0);
 
-    public MockMetricsReporter() {
-
-    }
+    public MockMetricsReporter() {}
 
     @Override
     public void init(List<KafkaMetric> metrics) {
@@ -37,9 +35,10 @@ public class MockMetricsReporter implements MetricsReporter {
     }
 
     @Override
-    public void metricChange(KafkaMetric metric) {
+    public void metricChange(KafkaMetric metric) {}
 
-    }
+    @Override
+    public void metricDelete(KafkaMetric metric) {}
 
     @Override
     public void close() {
@@ -47,7 +46,5 @@ public class MockMetricsReporter implements MetricsReporter {
     }
 
     @Override
-    public void configure(Map<String, ?> configs) {
-
-    }
+    public void configure(Map<String, ?> configs) {}
 }

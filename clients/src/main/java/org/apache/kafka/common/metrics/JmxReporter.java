@@ -78,6 +78,14 @@ public class JmxReporter implements MetricsReporter {
         }
     }
 
+    @Override
+    public void metricDelete(KafkaMetric metric) {
+        synchronized (LOCK) {
+            KafkaMbean mbean = addAttribute(metric);
+            unregister(mbean);
+        }
+    }
+
     private KafkaMbean addAttribute(KafkaMetric metric) {
         try {
             MetricName metricName = metric.metricName();

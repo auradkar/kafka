@@ -183,6 +183,25 @@ public class Metrics implements Closeable {
             reporter.metricChange(metric);
     }
 
+    synchronized void unregisterMetric(KafkaMetric metric) {
+        MetricName metricName = metric.metricName();
+        if (! this.metrics.containsKey(metricName))
+            throw new IllegalArgumentException("A metric named '" + metricName + "' does not exist. Cannot delete");
+
+        this.metrics.remove(metricName);
+
+        for (MetricsReporter reporter : reporters)
+            reporter.metricDelete(metric);
+    }
+
+    public synchronized void deleteSensor(String sensor) {
+        Sensor s = this.sensors.remove(sensor);
+        if (s == null)
+            throw new IllegalArgumentException("Sensor with name " + sensor + " does not exist");
+
+        s.unregister();
+    }
+
     /**
      * Get all the metrics currently maintained indexed by metricName
      */

@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.kafka.common.MetricName;
 import org.apache.kafka.common.metrics.CompoundStat.NamedMeasurable;
 import org.apache.kafka.common.utils.Time;
@@ -37,6 +38,7 @@ public final class Sensor {
     private final List<KafkaMetric> metrics;
     private final MetricConfig config;
     private final Time time;
+    private AtomicLong _lastRecordTimeMillis;
 
     Sensor(Metrics registry, String name, Sensor[] parents, MetricConfig config, Time time) {
         super();
@@ -47,6 +49,7 @@ public final class Sensor {
         this.stats = new ArrayList<Stat>();
         this.config = config;
         this.time = time;
+        this._lastRecordTimeMillis = new AtomicLong(System.currentTimeMillis());
         checkForest(new HashSet<Sensor>());
     }
 
@@ -99,6 +102,7 @@ public final class Sensor {
         }
         for (int i = 0; i < parents.length; i++)
             parents[i].record(value, timeMs);
+        this._lastRecordTimeMillis.set(System.currentTimeMillis());
     }
 
     /**
@@ -171,6 +175,18 @@ public final class Sensor {
         this.registry.registerMetric(metric);
         this.metrics.add(metric);
         this.stats.add(stat);
+    }
+
+    long getLastRecordTime() {
+        return this._lastRecordTimeMillis.get();
+    }
+
+    public synchronized void unregister() {
+        for (KafkaMetric km : metrics) {
+            this.registry.unregisterMetric(km);
+        }
+        this.metrics.clear();
+        this.stats.clear();
     }
 
     synchronized List<KafkaMetric> metrics() {
