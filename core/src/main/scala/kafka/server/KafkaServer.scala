@@ -212,7 +212,7 @@ class KafkaServer(val config: KafkaConfig, time: Time = SystemTime, threadNamePr
 
         /* start dynamic config manager */
         dynamicConfigHandlers = Map[String, ConfigHandler](ConfigType.Topic -> new TopicConfigHandler(logManager),
-                                                           ConfigType.Client -> new ClientIdConfigHandler)
+                                                           ConfigType.Client -> new ClientIdConfigHandler(apis.quotaManagers))
         dynamicConfigManager = new DynamicConfigManager(zkClient, dynamicConfigHandlers)
         dynamicConfigManager.startup()
 
