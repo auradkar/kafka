@@ -399,6 +399,13 @@ public class Protocol {
     public static final Schema[] LIST_GROUPS_REQUEST = new Schema[] {LIST_GROUPS_REQUEST_V0};
     public static final Schema[] LIST_GROUPS_RESPONSE = new Schema[] {LIST_GROUPS_RESPONSE_V0};
 
+
+    public static final Schema GET_REQUEST_V0 = new Schema(new Field("key", STRING, "key"));
+    public static final Schema GET_RESPONSE_V0 = new Schema(new Field("error_code", INT16),
+            new Field("value", BYTES, "value of the get"));
+    public static final Schema[] GET_REQUEST = new Schema[] {GET_REQUEST_V0};
+    public static final Schema[] GET_RESPONSE = new Schema[] {GET_RESPONSE_V0};
+
     /* Describe group api */
     public static final Schema DESCRIBE_GROUPS_REQUEST_V0 = new Schema(new Field("group_ids",
                                                                                  new ArrayOf(STRING),
@@ -676,6 +683,7 @@ public class Protocol {
         REQUESTS[ApiKeys.SYNC_GROUP.id] = SYNC_GROUP_REQUEST;
         REQUESTS[ApiKeys.DESCRIBE_GROUPS.id] = DESCRIBE_GROUPS_REQUEST;
         REQUESTS[ApiKeys.LIST_GROUPS.id] = LIST_GROUPS_REQUEST;
+        REQUESTS[ApiKeys.GET.id] = GET_REQUEST;
 
         RESPONSES[ApiKeys.PRODUCE.id] = PRODUCE_RESPONSE;
         RESPONSES[ApiKeys.FETCH.id] = FETCH_RESPONSE;
@@ -694,6 +702,8 @@ public class Protocol {
         RESPONSES[ApiKeys.SYNC_GROUP.id] = SYNC_GROUP_RESPONSE;
         RESPONSES[ApiKeys.DESCRIBE_GROUPS.id] = DESCRIBE_GROUPS_RESPONSE;
         RESPONSES[ApiKeys.LIST_GROUPS.id] = LIST_GROUPS_RESPONSE;
+        RESPONSES[ApiKeys.GET.id] = GET_RESPONSE;
+
 
         /* set the maximum version of each api */
         for (ApiKeys api : ApiKeys.values())

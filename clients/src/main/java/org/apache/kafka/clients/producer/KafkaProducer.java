@@ -464,11 +464,15 @@ public class KafkaProducer<K, V> implements Producer<K, V> {
         }
     }
 
-    /**
-     * Wait for cluster metadata including partitions for the given topic to be available.
-     * @param topic The topic we want metadata for
-     * @param maxWaitMs The maximum time in ms for waiting on the metadata
-     */
+    public byte[] get(String key) {
+      return new byte[] {};
+    }
+
+        /**
+         * Wait for cluster metadata including partitions for the given topic to be available.
+         * @param topic The topic we want metadata for
+         * @param maxWaitMs The maximum time in ms for waiting on the metadata
+         */
     private void waitOnMetadata(String topic, long maxWaitMs) throws InterruptedException {
         // add topic to metadata topic list if it is not there already.
         if (!this.metadata.containsTopic(topic))

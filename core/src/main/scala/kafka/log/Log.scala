@@ -17,6 +17,8 @@
 
 package kafka.log
 
+import java.nio.ByteBuffer
+
 import kafka.utils._
 import kafka.message._
 import kafka.common._
@@ -24,7 +26,7 @@ import kafka.metrics.KafkaMetricsGroup
 import kafka.server.{LogOffsetMetadata, FetchDataInfo, BrokerTopicStats}
 
 import java.io.{IOException, File}
-import java.util.concurrent.{ConcurrentNavigableMap, ConcurrentSkipListMap}
+import java.util.concurrent.{ConcurrentHashMap, ConcurrentNavigableMap, ConcurrentSkipListMap}
 import java.util.concurrent.atomic._
 import java.text.NumberFormat
 import scala.collection.JavaConversions
@@ -72,6 +74,7 @@ class Log(val dir: File,
 
   import kafka.log.Log._
 
+  private val offsetMap = new SkimpyOffsetMap(10 * 1024 * 1024)
   /* A lock that guards all modifications to the log */
   private val lock = new Object
 
@@ -345,6 +348,11 @@ class Log(val dir: File,
             throw new MessageSizeTooLargeException("Message size is %d bytes which exceeds the maximum configured message size of %d."
               .format(MessageSet.entrySize(messageAndOffset.message), config.maxMessageSize))
           }
+          else {
+            if (messageAndOffset.message.hasKey) {
+              offsetMap.put(messageAndOffset.message.key, messageAndOffset.offset);
+            }
+          }
         }
 
         // check messages set size may be exceed config.segmentSize
@@ -517,7 +525,12 @@ class Log(val dir: File,
     FetchDataInfo(nextOffsetMetadata, MessageSet.Empty)
   }
 
-  /**
+  def get(key: ByteBuffer): FetchDataInfo = {
+    val offset = offsetMap.get(key)
+    read(offset, 100000, Some(offset + 1))
+  }
+
+    /**
    * Given a message offset, find its corresponding offset metadata in the log.
    * If the message offset is out of range, return unknown offset metadata
    */

@@ -40,6 +40,7 @@ object RequestKeys {
   val SyncGroupKey: Short = 14
   val DescribeGroupsKey: Short = 15
   val ListGroupsKey: Short = 16
+  val GetKey: Short = 17
 
   // NOTE: this map only includes the server-side request/response handlers. Newer
   // request types should only use the client-side versions which are parsed with
